@@ -107,7 +107,7 @@ static int oops(struct compress *compress, int e, const char *fmt, ...)
 		": %s", strerror(e));
 	errno = e;
 
-	return -errno;
+	return -1;
 }
 
 const char *compress_get_error(struct compress *compress)
@@ -568,12 +568,10 @@ int compress_set_gapless_metadata(struct compress *compress,
 	metadata.value[0] = mdata->encoder_delay;
 	if (ioctl(compress->fd, SNDRV_COMPRESS_SET_METADATA, &metadata))
 		return oops(compress, errno, "can't set metadata for stream\n");
-
 	compress->gapless_metadata = 1;
 	return 0;
 }
 
-#if defined(SNDRV_COMPRESS_SET_NEXT_TRACK_PARAM)
 int compress_set_next_track_param(struct compress *compress,
 	union snd_codec_options *codec_options)
 {
@@ -584,13 +582,7 @@ int compress_set_next_track_param(struct compress *compress,
 		return oops(compress, errno, "cannot set next track params\n");
 	return 0;
 }
-#else
-int compress_set_next_track_param(struct compress *compress __unused,
-    union snd_codec_options *codec_options __unused)
-{
-    return 0;
-}
-#endif
+
 bool is_codec_supported(unsigned int card, unsigned int device,
 		unsigned int flags, struct snd_codec *codec)
 {
